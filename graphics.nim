@@ -1,5 +1,6 @@
-# Vast majority of this is shamelessly pilfered from the examples
-import sdl2/sdl, sdl2/sdl_image
+# Graphics functions
+# Majority of this is shamelessly pilfered from the examples
+import tables, sdl2/sdl, sdl2/sdl_image, entity
 
 const
   Title = "Duum"
@@ -9,22 +10,49 @@ const
   RendererFlags = RendererAccelerated or RendererPresentVsync
 
 type
-  Screen = ref ScreenObj
-  ScreenObj = object
+  Screen = object
     window: Window # Window pointer
     renderer: Renderer # Rendering state pointer
-  Image = ref ImageObj
-  ImageObj = object of RootObj
-    texture: Texture # Image texture
+  Sprite = ref object
+    texture: Texture
     w, h: int
 
-var screen = Screen(window: nil, renderer: nil)
+var
+  screen: Screen
+  initialized = false
+  sprites = initTable[string, Sprite]()
 
-proc init*() =
+
+proc load(obj: var Sprite, file: string) =
+  # Load texture to image
+  echo file
+  obj.texture = screen.renderer.loadTexture(file)
+  if obj.texture == nil:
+    sdl.logCritical(sdl.LogCategoryError,
+                    "Can't load sprite %s: %s",
+                    file, sdl_image.getError())
+  # Get image dimensions
+  var w, h: cint
+  if obj.texture.queryTexture(nil, nil, addr(w), addr(h)) != 0:
+    sdl.logCritical(sdl.LogCategoryError,
+                    "Can't get texture attributes: %s",
+                    sdl.getError())
+    sdl.destroyTexture(obj.texture)
+  obj.w = w
+  obj.h = h
+
+proc render(obj: Sprite, x: int, y: int) =
+  var rect = sdl.Rect(x: x, y: y, w: obj.w, h: obj.h)
+  discard screen.renderer.renderCopy(obj.texture, nil, addr(rect))
+
+proc initGraphics*() =
   # Initialization sequence
   # Init SDL
   if sdl.init(InitVideo) != 0:
     echo "ERROR: Can't initialize SDL: ", sdl.getError()
+
+    if sdl_image.init(InitPng) != 0:
+      echo "ERROR: Can't initialize SDL_Image: ", sdl.getError()
 
   # Create window
   screen.window = sdl.createWindow(
@@ -46,42 +74,29 @@ proc init*() =
   if screen.renderer.setRenderDrawColor(0xFF, 0xFF, 0xFF, 0xFF) != 0:
     echo "ERROR: Can't set draw color: ", sdl.getError()
 
+  initialized = true
   echo "SDL initialized successfully"
 
 # Shutdown sequence
-proc exit*() =
+proc quitGraphics*() =
   screen.renderer.destroyRenderer()
   screen.window.destroyWindow()
   sdl.quit()
   echo "SDL shutdown completed"
-  system.quit()
 
-proc load(obj: Image, renderer: Renderer, file: string): bool =
-  result = true
-  # Load image to texture
-  obj.texture = renderer.loadTexture(file)
-  if obj.texture == nil:
-    sdl.logCritical(sdl.LogCategoryError,
-                    "Can't load image %s: %s",
-                    file, sdl_image.getError())
-    return false
-  # Get image dimensions
-  var w, h: cint
-  if obj.texture.queryTexture(nil, nil, addr(w), addr(h)) != 0:
-    sdl.logCritical(sdl.LogCategoryError,
-                    "Can't get texture attributes: %s",
-                    sdl.getError())
-    sdl.destroyTexture(obj.texture)
-    return false
-  obj.w = w
-  obj.h = h
-
-proc clearScreen*() =
+proc drawEntities*(entities: openArray[Entity]) =
   # Clear screen with draw color
+  if not initialized:
+    echo "Graphics are not initialized"
+    return
   if screen.renderer.renderClear() != 0:
     echo "Warning: Can't clear screen: ", sdl.getError()
 
-proc updateScreen*() =
-  screen.renderer.renderPresent()
+  for i in entities:
+    if i.id notin sprites:
+      var sprite = Sprite(texture: nil, w: 0, h: 0)
+      sprite.load("assets/sprites/" & i.id & ".png")
+      sprites[i.id] = sprite
+    sprites[i.id].render(i.x, i.y)
 
-# proc drawScreen*() =
+  screen.renderer.renderPresent()

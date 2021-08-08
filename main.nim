@@ -1,19 +1,15 @@
-import graphics
-import sdl2/sdl
+import graphics, input, action, game
+
+initGraphics()
 
 while true:
-  clearScreen()
-  updateScreen()
 
-  var e: Event
+  drawEntities(entities)
 
-  while pollEvent(addr(e)) != 0:
-      case e.kind
-      of Quit: exit()
-      of KeyDown:
-        case e.key.keysym.sym
-        of K_Escape: exit()
-        else: discard
-      else: discard
+  let actions = getActions()
 
-exit()
+  if exit in actions:
+    quitGraphics()
+    break
+
+  playerAction(actions)
