@@ -1,18 +1,45 @@
-import action, entity
+import action, tables, hashes
 
 const moveSpeed = 5
 
-var entities*: seq[Entity]
+type
+  Entity* = ref object
+    x*, y*: int
+    id*: string
 
-proc initEntity(x, y: int, id: string):Entity =
+  Velocity = ref object
+    x, y: int
+
+var
+  entities*: seq[Entity]
+  velocities = initTable[Entity, Velocity]()
+  colliders = initTable[Entity, Collider]()
+  jumpDelay = 0
+
+proc hash(entity: Entity): Hash =
+  result = entity.id.hash
+
+proc newEntity(x, y: int, id: string): Entity =
   result = Entity(x: x, y: y, id: id)
   entities.add(result)
 
-var player = initEntity(0, 0, "player")
+proc addVelocity(entity: Entity) =
+  velocities[entity] = Velocity(x: 0, y: 0)
+
+var player = newEntity(0, 0, "player")
+
+player.addVelocity()
 
 proc playerAction*(actions: set[Action]) =
   if left in actions: player.x -= moveSpeed
   if right in actions: player.x += moveSpeed
-  if up in actions: player.y -= moveSpeed
-  if down in actions: player.y += moveSpeed
-  echo $player.x & ", " & $player.y
+  if jump in actions and jumpDelay == 0:
+    velocities[player].y = -20
+    jumpDelay = 40
+
+proc update*() =
+  for entity, vel in velocities.pairs:
+    entity.x += vel.x
+    entity.y += vel.y
+    if vel.y < 20: vel.y += 1
+    if jumpDelay > 0: jumpDelay -= 1

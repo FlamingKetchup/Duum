@@ -4,7 +4,8 @@ const keybindings = {exit: @[K_ESCAPE],
                      left: @[K_a, K_LEFT],
                      right: @[K_d, K_RIGHT],
                      up: @[K_w, K_UP],
-                     down: @[K_s, K_DOWN]}.toTable
+                     down: @[K_s, K_DOWN],
+                     jump: @[K_SPACE]}.toTable
 
 proc getActions*(): set[Action] =
   var e: Event

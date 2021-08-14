@@ -13,3 +13,4 @@ while true:
     break
 
   playerAction(actions)
+  update()

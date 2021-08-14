@@ -1,6 +1,7 @@
 # Graphics functions
 # Majority of this is shamelessly pilfered from the examples
-import tables, sdl2/sdl, sdl2/sdl_image, entity
+import tables, sdl2/sdl, sdl2/sdl_image
+from game import Entity
 
 const
   Title = "Duum"
@@ -25,18 +26,13 @@ var
 
 proc load(obj: var Sprite, file: string) =
   # Load texture to image
-  echo file
   obj.texture = screen.renderer.loadTexture(file)
   if obj.texture == nil:
-    sdl.logCritical(sdl.LogCategoryError,
-                    "Can't load sprite %s: %s",
-                    file, sdl_image.getError())
+    echo  "Can't load sprite %s: %s", file, sdl_image.getError()
   # Get image dimensions
   var w, h: cint
   if obj.texture.queryTexture(nil, nil, addr(w), addr(h)) != 0:
-    sdl.logCritical(sdl.LogCategoryError,
-                    "Can't get texture attributes: %s",
-                    sdl.getError())
+    echo "Can't get texture attributes: ", sdl.getError()
     sdl.destroyTexture(obj.texture)
   obj.w = w
   obj.h = h
