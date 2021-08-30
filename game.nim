@@ -1,45 +1,54 @@
-import action, tables, hashes
+import entity
+export entities
+from input import Action
 
 const moveSpeed = 5
 
-type
-  Entity* = ref object
-    x*, y*: int
-    id*: string
-
-  Velocity = ref object
-    x, y: int
-
 var
-  entities*: seq[Entity]
-  velocities = initTable[Entity, Velocity]()
-  colliders = initTable[Entity, Collider]()
+  player = newEntity(0, 0, "player")
+  platform = newEntity(200, 400, "platform")
   jumpDelay = 0
 
-proc hash(entity: Entity): Hash =
-  result = entity.id.hash
-
-proc newEntity(x, y: int, id: string): Entity =
-  result = Entity(x: x, y: y, id: id)
-  entities.add(result)
-
-proc addVelocity(entity: Entity) =
-  velocities[entity] = Velocity(x: 0, y: 0)
-
-var player = newEntity(0, 0, "player")
-
 player.addVelocity()
+player.addCollider(48, 64)
+
+platform.addCollider(50, 50)
 
 proc playerAction*(actions: set[Action]) =
-  if left in actions: player.x -= moveSpeed
-  if right in actions: player.x += moveSpeed
+  player.vel.x = 0
+  if left in actions: player.vel.x = -moveSpeed
+  if right in actions: player.vel.x = moveSpeed
   if jump in actions and jumpDelay == 0:
-    velocities[player].y = -20
-    jumpDelay = 40
+    player.vel.y = -20
+    jumpDelay = 35
+
+proc collision(coord1, coord2: var int, half1, half2: int, vel: var int) =
+  if coord1 + half1 + vel > coord2 - half2 and
+      coord1 - half1 + vel < coord2 + half2:
+    vel = 0
+    if coord1 < coord2 - half2:
+      coord1 = coord2 - half2 - half1
+    elif coord1 > coord2 + half2:
+      coord1 = coord2 + half2 + half1
+  else:
+    coord1 += vel
 
 proc update*() =
-  for entity, vel in velocities.pairs:
-    entity.x += vel.x
-    entity.y += vel.y
-    if vel.y < 20: vel.y += 1
+  for entity in velocityEntities:
+    if entity in colliderEntities:
+      for e in colliderEntities:
+        if e != entity:
+          if abs(entity.y - e.y) < entity.col.halfH + e.col.halfH:
+            collision(entity.x, e.x, entity.col.halfW, e.col.halfW, entity.vel.x)
+          else:
+            entity.x += entity.vel.x
+          if abs(entity.x - e.x) < entity.col.halfW + e.col.halfW:
+            collision(entity.y, e.y, entity.col.halfH, e.col.halfH, entity.vel.y)
+          else:
+            entity.y += entity.vel.y
+    else:
+      entity.x += entity.vel.x
+      entity.y += entity.vel.y
+
+    if entity.vel.y < 20: entity.vel.y = entity.vel.y + 1
     if jumpDelay > 0: jumpDelay -= 1

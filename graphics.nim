@@ -1,7 +1,7 @@
 # Graphics functions
 # Majority of this is shamelessly pilfered from the examples
 import tables, sdl2/sdl, sdl2/sdl_image
-from game import Entity
+from entity import Entity
 
 const
   Title = "Duum"
@@ -38,7 +38,7 @@ proc load(obj: var Sprite, file: string) =
   obj.h = h
 
 proc render(obj: Sprite, x: int, y: int) =
-  var rect = sdl.Rect(x: x, y: y, w: obj.w, h: obj.h)
+  var rect = sdl.Rect(x: x - int(obj.w/2), y: y - int(obj.h/2), w: obj.w, h: obj.h)
   discard screen.renderer.renderCopy(obj.texture, nil, addr(rect))
 
 proc initGraphics*() =

@@ -1,10 +1,8 @@
-import graphics, input, action, game
+import graphics, input, game
 
 initGraphics()
 
 while true:
-
-  drawEntities(entities)
 
   let actions = getActions()
 
@@ -14,3 +12,5 @@ while true:
 
   playerAction(actions)
   update()
+
+  drawEntities(entities)

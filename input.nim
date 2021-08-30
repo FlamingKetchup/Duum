@@ -1,4 +1,8 @@
-import sdl2/sdl, action, tables
+import sdl2/sdl, tables
+
+type
+  Action* = enum
+    exit, up, down, left, right, jump
 
 const keybindings = {exit: @[K_ESCAPE],
                      left: @[K_a, K_LEFT],
