@@ -10,7 +10,7 @@ const moveSpeed = 5
 
 var
   player = newEntity(0, 0, "player")
-  platform = newEntity(100, 400, "platform")
+  platform = newEntity(100, 200, "platform")
   canJump = false
 
 player.addVelocity()
@@ -23,7 +23,7 @@ proc playerAction*(actions: set[Action]) =
   if left in actions: player.vel.x = -moveSpeed
   if right in actions: player.vel.x = moveSpeed
   if jump in actions and canJump:
-    player.vel.y = -20
+    player.vel.y = -15
 
 proc collision(coord1, coord2: var int, half1, half2: int, vel: var int): CollisionType {.discardable.} =
   if coord1 + half1 + vel > coord2 - half2 and

@@ -70,6 +70,8 @@ proc initGraphics*() =
   if screen.renderer.setRenderDrawColor(0xFF, 0xFF, 0xFF, 0xFF) != 0:
     echo "ERROR: Can't set draw color: ", sdl.getError()
 
+  discard screen.renderer.renderSetScale(4, 4)
+
   initialized = true
   echo "SDL initialized successfully"
 
