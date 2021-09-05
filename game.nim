@@ -52,6 +52,7 @@ proc update*() =
             if collision(entity.y, e.y, entity.col.halfH, e.col.halfH, entity.vel.y) == leftOrTop: canJump = true
             else: canJump = false
           else:
+            canJump = false
             entity.y += entity.vel.y
     else:
       entity.x += entity.vel.x
