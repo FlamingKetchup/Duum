@@ -10,8 +10,8 @@ const moveSpeed = 5
 
 var
   player = newEntity(0, 0, "player")
-  platform = newEntity(200, 400, "platform")
-  jumpDelay = 0
+  platform = newEntity(100, 400, "platform")
+  canJump = false
 
 player.addVelocity()
 player.addCollider(8, 8)
@@ -22,9 +22,8 @@ proc playerAction*(actions: set[Action]) =
   player.vel.x = 0
   if left in actions: player.vel.x = -moveSpeed
   if right in actions: player.vel.x = moveSpeed
-  if jump in actions and jumpDelay == 0:
+  if jump in actions and canJump:
     player.vel.y = -20
-    jumpDelay = 35
 
 proc collision(coord1, coord2: var int, half1, half2: int, vel: var int): CollisionType {.discardable.} =
   if coord1 + half1 + vel > coord2 - half2 and
@@ -50,7 +49,8 @@ proc update*() =
           else:
             entity.x += entity.vel.x
           if abs(entity.x - e.x) < entity.col.halfW + e.col.halfW:
-            collision(entity.y, e.y, entity.col.halfH, e.col.halfH, entity.vel.y)
+            if collision(entity.y, e.y, entity.col.halfH, e.col.halfH, entity.vel.y) == leftOrTop: canJump = true
+            else: canJump = false
           else:
             entity.y += entity.vel.y
     else:
@@ -58,4 +58,3 @@ proc update*() =
       entity.y += entity.vel.y
 
     if entity.vel.y < 20: entity.vel.y = entity.vel.y + 1
-    if jumpDelay > 0: jumpDelay -= 1
