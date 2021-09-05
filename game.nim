@@ -2,6 +2,10 @@ import entity
 export entities
 from input import Action
 
+type
+  CollisionType = enum
+    none, leftOrTop, rightOrBottom,
+
 const moveSpeed = 5
 
 var
@@ -10,7 +14,7 @@ var
   jumpDelay = 0
 
 player.addVelocity()
-player.addCollider(48, 64)
+player.addCollider(8, 8)
 
 platform.addCollider(50, 50)
 
@@ -22,16 +26,19 @@ proc playerAction*(actions: set[Action]) =
     player.vel.y = -20
     jumpDelay = 35
 
-proc collision(coord1, coord2: var int, half1, half2: int, vel: var int) =
+proc collision(coord1, coord2: var int, half1, half2: int, vel: var int): CollisionType {.discardable.} =
   if coord1 + half1 + vel > coord2 - half2 and
       coord1 - half1 + vel < coord2 + half2:
     vel = 0
     if coord1 < coord2 - half2:
       coord1 = coord2 - half2 - half1
+      result = leftOrTop
     elif coord1 > coord2 + half2:
       coord1 = coord2 + half2 + half1
+      result = rightOrBottom
   else:
     coord1 += vel
+    result = none
 
 proc update*() =
   for entity in velocityEntities:
