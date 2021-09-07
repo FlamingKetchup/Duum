@@ -19,7 +19,7 @@ var
   colliders = initTable[Entity, Collider]()
 
 proc hash(entity: Entity): Hash =
-  result = entity.id.hash
+  result = cast[Hash](entity)
 
 proc newEntity*(x, y: int, id: string): Entity =
   result = Entity(x: x, y: y, id: id)
