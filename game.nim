@@ -10,13 +10,13 @@ const moveSpeed = 5
 
 var
   player = newEntity(0, 0, "player")
-  platform = newEntity(100, 200, "platform")
+  platform = newEntity(50, 120, "platform")
   canJump = false
 
 player.addVelocity()
 player.addCollider(8, 8)
 
-platform.addCollider(50, 50)
+platform.addCollider(16, 16)
 
 proc playerAction*(actions: set[Action]) =
   player.vel.x = 0
