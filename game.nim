@@ -20,7 +20,7 @@ var
 player.addVelocity()
 player.addCollider(8, 8)
 
-platform.addCollider(16, 16)
+platform.addCollider(32, 8)
 
 proc playerAction*(actions: set[Action]) =
   player.vel.x = 0
