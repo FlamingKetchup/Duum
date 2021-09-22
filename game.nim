@@ -15,7 +15,7 @@ let startTime = getMonoTime()
 var
   player = newEntity(50, 10, "player")
   platform = newEntity(50, 120, "platform")
-#  platform1 = newEntity(120, 100, "platform")
+  platform1 = newEntity(120, 100, "platform")
   canJump = false
   lastUpdate = getMonoTime()
   updates = 0
@@ -24,7 +24,7 @@ player.addVelocity()
 player.addCollider(8, 8)
 
 platform.addCollider(32, 8)
-#platform1.addCollider(32, 8)
+platform1.addCollider(32, 8)
 
 proc playerAction*(actions: set[Action]) =
   player.vel.x = 0
@@ -60,30 +60,31 @@ proc update*() =
     updates += 1
     canJump = false
     for entity in velocityEntities:
+      var
+        candidateX = entity.x + entity.vel.x
+        candidateY = entity.y + entity.vel.y
       if entity in colliderEntities:
         for e in colliderEntities:
           if entity != e:
             case collide(entity, e)
             of left:
-              entity.x = e.x - entity.col.halfW - e.col.halfW
-              entity.y += entity.vel.y
+              entity.vel.x = 0
+              candidateX = e.x - entity.col.halfW - e.col.halfW
             of right:
-              entity.x = e.x + entity.col.halfW + e.col.halfW
-              entity.y += entity.vel.y
+              entity.vel.x = 0
+              candidateX = e.x + entity.col.halfW + e.col.halfW
             of top:
-              entity.x += entity.vel.x
-              entity.y = e.y - entity.col.halfH - e.col.halfH
+              entity.vel.y = 0
+              candidateY = e.y - entity.col.halfH - e.col.halfH
               if entity == player:
                 canJump = true
             of bottom:
-              entity.x += entity.vel.x
-              entity.y = e.y + entity.col.halfH + e.col.halfH
+              entity.vel.y = 0
+              candidateY = e.y + entity.col.halfH + e.col.halfH
             of noCollision:
-              entity.x += entity.vel.x
-              entity.y += entity.vel.y
-      else:
-        entity.x += entity.vel.x
-        entity.y += entity.vel.y
+              discard
+      entity.x = candidateX
+      entity.y = candidateY
 
       if entity.vel.y < 20: entity.vel.y = entity.vel.y + 1
 
