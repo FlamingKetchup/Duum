@@ -8,7 +8,7 @@ type
   CollisionType = enum
     noCollision, left, right, top, bottom
 
-const moveSpeed = 5
+const moveSpeed = 4
 
 let startTime = getMonoTime()
 
@@ -31,7 +31,7 @@ proc playerAction*(actions: set[Action]) =
   if Action.left in actions: player.vel.x = -moveSpeed
   if Action.right in actions: player.vel.x = moveSpeed
   if jump in actions and canJump:
-    player.vel.y = -12
+    player.vel.y = -10
 
 proc axialCollide(coord1, coord2: int, half1, half2: int, vel: int): AxialCollisionType =
   if coord1 + half1 + vel > coord2 - half2 and coord1 - half1 + vel < coord2 + half2:
