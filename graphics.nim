@@ -5,8 +5,9 @@ from entity import Entity
 
 const
   Title = "Duum"
-  ScreenWidth = 1280 # Window width
-  ScreenHeight = 720 # Window height
+  ScreenWidth = 1280
+  ScreenHeight = 720
+  ScreenScale = 4
   WindowFlags = 0
   RendererFlags = RendererAccelerated or RendererPresentVsync
 
@@ -70,7 +71,7 @@ proc initGraphics*() =
   if screen.renderer.setRenderDrawColor(0xFF, 0xFF, 0xFF, 0xFF) != 0:
     echo "ERROR: Can't set draw color: ", sdl.getError()
 
-  discard screen.renderer.renderSetScale(4, 4)
+  discard screen.renderer.renderSetScale(ScreenScale, ScreenScale)
 
   initialized = true
   echo "SDL initialized successfully"
@@ -82,7 +83,7 @@ proc quitGraphics*() =
   sdl.quit()
   echo "SDL shutdown completed"
 
-proc drawEntities*(entities: openArray[Entity]) =
+proc draw*(entities: openArray[Entity], cameraCenter: Entity) =
   # Clear screen with draw color
   if not initialized:
     echo "Graphics are not initialized"
@@ -95,6 +96,7 @@ proc drawEntities*(entities: openArray[Entity]) =
       var sprite = Sprite(texture: nil, w: 0, h: 0)
       sprite.load("assets/sprites/" & i.id & ".png")
       sprites[i.id] = sprite
-    sprites[i.id].render(i.x, i.y)
+    sprites[i.id].render(i.x - cameraCenter.x + int(ScreenWidth/2/ScreenScale),
+                         i.y - cameraCenter.y + int(ScreenHeight/2/ScreenScale))
 
   screen.renderer.renderPresent()

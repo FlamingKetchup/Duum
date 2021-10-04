@@ -13,7 +13,7 @@ const moveSpeed = 4
 let startTime = getMonoTime()
 
 var
-  player = newEntity(50, 10, "player")
+  player* = newEntity(50, 10, "player")
   platform = newEntity(50, 120, "platform")
   platform1 = newEntity(120, 100, "platform")
   canJump = false

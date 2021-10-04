@@ -13,4 +13,4 @@ while true:
   playerAction(actions)
   update()
 
-  drawEntities(entities)
+  entities.draw(player)
