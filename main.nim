@@ -1,6 +1,7 @@
 import graphics, input, game
 
 initGraphics()
+generateLevel()
 
 while true:
 
@@ -11,6 +12,6 @@ while true:
     break
 
   playerAction(actions)
-  update()
+  cumulativeUpdate()
 
   entities.draw(player)
