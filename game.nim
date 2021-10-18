@@ -1,6 +1,7 @@
 import entity, std/monotimes, random
 export entities
 from input import Action
+from math import ceil, round
 
 type
   AxialCollisionType = enum
@@ -101,7 +102,9 @@ proc generateLevel*() =
     playerAction({currentDirection, jump})
 
     if i == nextPlatformUpdate:
-      var platform = newEntity(player.x, player.y + player.col.halfH + 8, "platform")
+      var platform = newEntity(toInt(round(player.x/16)) * 16,
+                               toInt(ceil((player.y + player.col.halfH + 8)/16)) * 16,
+                               "platform")
       platform.addCollider(8, 8)
       nextPlatformUpdate += rand(10..30)
 
